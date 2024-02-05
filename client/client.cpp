@@ -241,7 +241,7 @@ client_system:
         else if (order == "gets") {
             // 断点续传功能
             struct stat statbuf;
-            // 如果文件不存在, stat 会返回 -1, 从头开始下载, 如果不为 -1, 从断开出继续下载
+            // 如果文件不存在, stat 会返回 -1, 从头开始下载; 如果文件存在, 则从断开出继续下载
             ret = stat(name.c_str(), &statbuf);
             if (-1 == ret) {
                 orders = order + " " + name + " 0";
