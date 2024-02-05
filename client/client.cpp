@@ -3,7 +3,7 @@
 
 // 客户端
 int main() {
-    int ret;
+    int ret;                    // 函数返回值
     int dataLen = 0;            // 客户端报文数据长度
     char buf[1000] = {0};       // 客户端缓冲区大小
     Packet packet;              // 数据报文
@@ -239,8 +239,9 @@ client_system:
         }
         /*******************************gets*****************************/
         else if (order == "gets") {
-            // 断点续传功能, 获取该文件已经下载的大小
+            // 断点续传功能
             struct stat statbuf;
+            // 如果文件不存在, stat 会返回 -1, 从头开始下载, 如果不为 -1, 从断开出继续下载
             ret = stat(name.c_str(), &statbuf);
             if (-1 == ret) {
                 orders = order + " " + name + " 0";
