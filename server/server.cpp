@@ -9,40 +9,47 @@ vector<int> clients;                   //存储客户端的描述符
 unordered_map<string, int> name_to_fd; //<用户名称，描述符>
 int epfd = epoll_create(1);            //设置epoll
 
-// 轮询函数
-void *ask(void *arg)
-{
-    unordered_map<int, time_t> *timeMap = (unordered_map<int, time_t> *)arg; //<用户fd,上一次发送包的时间>
-    while (1)
-    {
-        for (auto &e : *timeMap)
-        {
+// 定义一个轮询函数，用于检查客户端是否超时未发送消息
+void *ask(void *arg) {
+    // 将传入的参数转换为指向unordered_map的指针，此map记录了客户端的文件描述符和上一次发送消息的时间
+    unordered_map<int, time_t> *timeMap = (unordered_map<int, time_t> *)arg;
+    // 无限循环，以持续检查客户端的状态
+    while (1) {
+        // 遍历所有客户端
+        for (auto &e : *timeMap) {
             time_t t;
+            // 获取当前时间
             time(&t);
-            if (t - e.second > 3)
-            {
+            // 检查当前时间与客户端上一次发送消息的时间差，如果超过3秒
+            if (t - e.second > 3) {
+                // 输出超时未发送消息的客户端信息
                 cout << "客户端" << e.first << "超时未发送消息，断开！" << endl;
-                //取消监听并从clients, timeMap中删除
+                
+                // 准备从epoll实例中删除客户端文件描述符的操作
                 struct epoll_event ev;
-                ev.data.fd = e.first;
-                ev.events = EPOLLIN;
+                ev.data.fd = e.first; // 指定要操作的文件描述符
+                ev.events = EPOLLIN; // 指定事件类型，这里只是为了结构体初始化，实际操作为删除
+                // 调用epoll_ctl从epoll实例中删除客户端文件描述符，停止对其的监听
                 int ret = epoll_ctl(epfd, EPOLL_CTL_DEL, e.first, &ev);
-                if (ret == -1)
-                {
+                if (ret == -1) {
+                    // 如果操作失败，打印错误信息并退出线程
                     perror("epoll_ctl");
                     pthread_exit(NULL);
                 }
+                // 从clients列表中删除超时的客户端文件描述符
                 clients.erase(remove(clients.begin(), clients.end(), e.first), clients.end());
+                // 从timeMap中删除对应的记录
                 timeMap->erase(e.first);
+                // 关闭客户端的文件描述符
                 close(e.first);
             }
+            // 每次检查完一个客户端后，休眠1秒再继续下一个，减少CPU占用
             sleep(1);
         }
     }
 }
 
-int main()
-{
+int main() {
     /******************启动多线程，并绑定TCP的socket**********************/
     Factory f;
     Packet packet;
@@ -151,24 +158,20 @@ int main()
                     LOG(name, orders);
                 }
                 /************************注册操作**************************/
-                else if (order == "signIn")
-                {
+                else if (order == "signIn") {
                     //在数据库中寻找是否有相同的用户
                     string s;
                     sql = "SELECT User FROM Shadow WHERE User = '" + name + "'";
                     cout << sql << endl;
                     db.select_one_SQL(sql, s);
-                    if (s.empty())
-                    {
+                    if (s.empty()) {
                         flag = true;
                         string salt(GenerateStr(8));
                         string cipher(crypt(order2.c_str(), salt.c_str()));
                         sql = "INSERT INTO Shadow Values('" + name + "','" + order2 + "','" + salt + "','" + cipher + "')";
                         cout << sql << endl;
                         db.exeSQL(sql);
-                    }
-                    else
-                    {
+                    } else {
                         flag = false;
                     }
                     sendCycle(newClient, &flag, 1);
@@ -339,7 +342,7 @@ int main()
                     } else {
                         flag = true;
                         sendCycle(clients[i], &flag, 1);
-                        Dir = stoi(res);
+                        Dir = stoi(res);                    // 更新当前的目录
                         sendCycle(clients[i], &Dir, 4);
                     }
                 }
