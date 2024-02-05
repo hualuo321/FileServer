@@ -1,11 +1,10 @@
 #include "function.h"
 #include <unordered_map>
 
-class Timer
-{
+// 定时器
+class Timer {
 public:
-    Timer()
-    {
+    Timer() {
         //从创建就开始进行轮询
         pthread_t pth;
         pthread_create(&pth, NULL, ask, &timeMap);
@@ -13,22 +12,19 @@ public:
     }
 
     //有新的客户端连接上
-    void add(const int &fd)
-    {
+    void add(const int &fd) {
         time_t t;
         time(&t);
         timeMap[fd] = t;
     }
 
     //客户端关闭
-    void deleteFd(const int &fd)
-    {
+    void deleteFd(const int &fd) {
         timeMap.erase(fd);
     }
 
     //客户端发来数据
-    void update(const int &fd)
-    {
+    void update(const int &fd) {
         time_t t;
         time(&t);
         timeMap[fd] = t;

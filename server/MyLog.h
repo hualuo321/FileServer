@@ -2,16 +2,14 @@
 #include "function.h"
 #include "MyDb.h"
 
-class MyLog
-{
+// 日志
+class MyLog {
 public:
-    MyLog()
-    {
+    MyLog() {
         db.initDB("localhost", "root", "123", "Netdisk");
     }
 
-    void insert(const string &user, const string &operation)
-    {
+    void insert(const string &user, const string &operation) {
         time_t t;
         time(&t);
         string stime(ctime(&t));

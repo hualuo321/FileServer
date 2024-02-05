@@ -158,8 +158,7 @@ int childHandle(const Task &task)
         db.exeSQL(sql);
     }
     /*******************************gets 文件内容*******************************/
-    else if ("gets" == order)
-    {
+    else if ("gets" == order) {
         //先判断当前目录下有无该文件
         sql = "SELECT FileName FROM Virtual_Dir WHERE User = '" + username + "' AND Dir = " + to_string(Dir) + " AND FileType = 'f' AND FileName = '" + filename + "'";
         db.select_one_SQL(sql, res);
@@ -205,8 +204,7 @@ int childHandle(const Task &task)
         ERROR_CHECK(pmap, (char *)-1, "mmap");
         off_t offset = beginPos, lastsize = beginPos;
         off_t slice = filesize / 100;
-        while (1)
-        {
+        while (1) {
             if (filesize > offset + (off_t)sizeof(packet.buf))
             {
                 packet.dataLen = sizeof(packet.buf);
