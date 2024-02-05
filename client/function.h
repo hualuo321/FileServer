@@ -64,32 +64,30 @@ using namespace std;
 #define MAXEVENTS 10
 
 // 客户端数据报文
-struct Packet
-{
+struct Packet {
     int dataLen;        // 报文长度
     char buf[1000];     // 报文内容
 };
 
-//上传下载的任务包
-struct LoadTask
-{
-    string username; //用户名
-    int Dir;         //所在目录
-    string orders;   //标准输入端读取的命令
+// 上传下载的任务包
+struct LoadTask {
+    string username;    // 用户名
+    int Dir;            // 所在目录
+    string orders;      // 标准输入端读取的命令
 };
 
 int tcpInit(int *);
 
-//接收,发送文件的线程函数以及实现函数
+// 接收,发送文件的线程函数以及实现函数
 int recvFile(int sockfd, const char *, off_t);
 int sendFile(int, const char *FILENAME);
 void *upLoad(void *arg);
 void *downLoad(void *arg);
 
-//循环接收，发送数据
+// 循环接收，发送数据
 int recvCycle(int, void *, size_t);
 int sendCycle(int, void *, size_t);
 
-//获取文件md5码
+// 获取文件md5码
 int get_file_md5(const std::string &file_name, std::string &md5_value);
 

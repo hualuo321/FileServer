@@ -72,10 +72,6 @@ struct Packet {
 //创建TCP通信socket
 int tcpInit(int *);
 
-//接收,发送文件
-int recvFile(int sockfd);
-int sendFile(int sockfd, const char *);
-
 //循环接收，发送数据
 int recvCycle(int, void *, size_t);
 int sendCycle(int, void *, size_t);
