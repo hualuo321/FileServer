@@ -15,13 +15,12 @@ public:
         cond = PTHREAD_COND_INITIALIZER;
         startFlag = false;
     }
-    void startFactory()
-    {
-        if (!startFlag)
-        {
+
+    // 开启多个线程
+    void startFactory() {
+        if (!startFlag) {
             cout << "server is running ..." << endl;
-            for (int i = 0; i < threadNum; i++)
-            {
+            for (int i = 0; i < threadNum; i++) {
                 pthread_create(&threads[i], NULL, doingTask, this);
             }
             sleep(1);
@@ -36,17 +35,16 @@ public:
     bool startFlag;
 };
 
-void *doingTask(void *arg)
-{
+// 启动函数
+void *doingTask(void *arg) {
     Factory *f = (Factory *)arg;
-    while (1)
-    {
-        pthread_mutex_lock(&f->que.mutex);
-        while (0 == f->que.size())
+    while (1) {
+        pthread_mutex_lock(&f->que.mutex);              // 加锁
+        while (0 == f->que.size())                      // 任务队列为空, 等待
             pthread_cond_wait(&f->cond, &f->que.mutex);
-        Task task = f->que.getTask();
-        childHandle(task);
-        pthread_mutex_unlock(&f->que.mutex);
+        Task task = f->que.getTask();                   // 任务队列不为空, 则从中取任务
+        childHandle(task);                              // 交给子线程去进行处理
+        pthread_mutex_unlock(&f->que.mutex);            // 解锁
     }
 }
 
@@ -82,9 +80,9 @@ int childHandle(const Task &task)
     {
         //接收MD5码
         bzero(buf, sizeof(buf));
-        recvCycle(sockfd, &dataLen, 4);
-        recvCycle(sockfd, buf, dataLen);
-        string md5(buf);
+        recvCycle(sockfd, &dataLen, 4);     // 接收数据的长度
+        recvCycle(sockfd, buf, dataLen);    // 接收数据的内容
+        string md5(buf);                    // 获取 MD5 哈希串
         cout << "md5:" << md5 << endl;
         /**puts前需要进行两点判断：
          * 1.在当前用户，当前目录下是否拥有此文件
@@ -93,13 +91,12 @@ int childHandle(const Task &task)
         //1.判断文件是否重复
         sql = "SELECT FileName FROM Virtual_Dir WHERE User = '" + username + "' AND Dir = " + to_string(Dir) + " AND FileType = 'f' AND FileName = '" + filename + "'";
         db.select_one_SQL(sql, res);
-        if (res.empty())
-        {
+        if (res.empty()) {
+            // 不存在同名文件
             flag = true;
             sendCycle(sockfd, &flag, 1);
-        }
-        else
-        {
+        } else {
+            // 存在同名文件
             flag = false;
             sendCycle(sockfd, &flag, 1);
             return 0;
@@ -110,21 +107,18 @@ int childHandle(const Task &task)
         db.select_one_SQL(sql, res);
         cout << sql << endl;
         cout << res << endl;
-        if (!res.empty())
-        {
+        if (!res.empty()) {
             cout << "秒传" << endl;
             flag = true;
             sendCycle(sockfd, &flag, 1);
-        }
-        else
-        {
+        } else {
             flag = false;
             sendCycle(sockfd, &flag, 1);
             int file_fd = open(md5.c_str(), O_RDWR | O_CREAT, 0666);
             ERROR_CHECK(file_fd, -1, "open");
             //接收文件大小
             bzero(buf, sizeof(buf));
-            recvCycle(sockfd, &dataLen, sizeof(int));
+            recvCycle(sockfd, &dataLen, 4);
             recvCycle(sockfd, buf, dataLen);
             memcpy(&filesize, buf, dataLen);
             ftruncate(file_fd, filesize);
@@ -231,9 +225,7 @@ int childHandle(const Task &task)
                     fflush(stdout);
                     lastsize = offset;
                 }
-            }
-            else
-            {
+            } else {
                 packet.dataLen = filesize - offset;
                 memcpy(packet.buf, pmap + offset, packet.dataLen);
                 ret = sendCycle(sockfd, &packet, sizeof(int) + packet.dataLen);

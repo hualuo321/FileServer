@@ -62,10 +62,12 @@ using namespace std;
 #define PORT 2000
 #define THREADNUM 10
 #define MAXEVENTS 10
+
+// 客户端数据报文
 struct Packet
 {
-    int dataLen;    // 包头，用来记录存数据的大小
-    char buf[1000]; // 包数据，用来存放数据
+    int dataLen;        // 报文长度
+    char buf[1000];     // 报文内容
 };
 
 //上传下载的任务包

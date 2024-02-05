@@ -82,8 +82,7 @@ int main()
              * gets 下载操作
              * quit 退出
             */
-            if (evs[i].data.fd == sockfd)
-            {
+            if (evs[i].data.fd == sockfd) {
                 int newClient = accept(sockfd, NULL, NULL);
                 ERROR_CHECK(newClient, -1, "accept");
                 //服务器接收到客户端发来的命令
@@ -178,8 +177,7 @@ int main()
                     goto accept_client;
                 }
                 /************************令牌操作,用于频繁请求数据的puts和gets**************************/
-                else if (order == "puts")
-                {
+                else if (order == "puts") {
                     //接收用户姓名
                     bzero(buf, sizeof(buf));
                     recvCycle(newClient, &dataLen, 4);

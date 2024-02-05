@@ -63,12 +63,11 @@ using namespace std;
 #define THREADNUM 10
 #define MAXEVENTS 10
 
-struct Packet
-{
-    int dataLen;    // 包头，用来记录存数据的大小
-    char buf[1000]; // 包数据，用来存放数据
+// 数据包
+struct Packet {
+    int dataLen;        // 包头，用来记录存数据的大小
+    char buf[1000];     // 包数据，用来存放数据
 };
-
 
 //创建TCP通信socket
 int tcpInit(int *);

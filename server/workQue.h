@@ -1,17 +1,16 @@
 #pragma once
 #include "function.h"
-class Task
-{
+
+// 待处理的任务
+class Task {
 public:
     Task(int fd, string orders, string username, int Dir)
-    :fd(fd), orders(orders), username(username), Dir(Dir)
-    {
-    }
+        :fd(fd), orders(orders), username(username), Dir(Dir) {}
     
-    int fd; //客户端socket
-    string orders; //客户端发送来的命令
-    string username; //客户端登陆用户名
-    int Dir; //用户所在目录号
+    int fd;             // 客户端 socket 对应的 fd
+    string orders;      // 客户端发送来的命令
+    string username;    // 客户端登陆用户名
+    int Dir;            // 用户所在目录号
 };
 
 class WorkQue
